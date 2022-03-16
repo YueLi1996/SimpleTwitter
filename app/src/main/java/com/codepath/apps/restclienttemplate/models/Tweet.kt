@@ -1,12 +1,14 @@
 package com.codepath.apps.restclienttemplate.models
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import org.json.JSONArray
 import org.json.JSONObject
 
-class Tweet {
-    var body:String = ""
-    var createAt:String = ""
-    var user:User? = null
+@Parcelize
+class Tweet(var body:String = "",
+            var createAt:String = "",
+            var user:User? = null ) : Parcelable {
 
     companion object {
         // get only one tweet
@@ -19,9 +21,9 @@ class Tweet {
         }
 
         // get a list of tweets
-        fun fromJsonArray(jsonArray: JSONArray) : List<Tweet> {
+        fun fromJsonArray(jsonArray: JSONArray): List<Tweet> {
             val tweets = ArrayList<Tweet>()
-            for(i in 0 until jsonArray.length()) {
+            for (i in 0 until jsonArray.length()) {
                 tweets.add(fromJson(jsonArray.getJSONObject(i)))
             }
             return tweets

@@ -1,8 +1,14 @@
 package com.codepath.apps.restclienttemplate
 
+import android.app.Activity
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -12,6 +18,7 @@ import okhttp3.Headers
 import org.json.JSONException
 
 private const val TAG = "TimelineActivity"
+
 class TimelineActivity : AppCompatActivity() {
 
     lateinit var client:TwitterClient
@@ -45,6 +52,37 @@ class TimelineActivity : AppCompatActivity() {
 
         populateHomeTimeline()
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?) : Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    var editActivityResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        // If the user comes back to this activity from EditActivity
+        // with no error or cancellation
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data = result.data
+            // Get the data passed from EditActivity
+            if (data != null) {
+                val tweet = data.extras!!.getString("tweet") as Tweet
+                tweets.add(0, tweet)
+                adapter.notifyItemInserted(0)
+                rvTweets.smoothScrollToPosition(0)
+            }
+        }
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.compose) {
+            val intent = Intent(this, ComposeActivity::class.java)
+            editActivityResultLauncher.launch(intent)
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
 
     private fun populateHomeTimeline(){
         client .getHomeTimeline(object: JsonHttpResponseHandler(){
